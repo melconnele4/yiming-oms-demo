@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>一鸣订单中台 - 移动端</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0f2f5;--bg2:#ffffff;--bg3:#ffffff;--border:#e2e5ea;--text:#1a1d26;--text2:#5f6776;--text3:#8c95a4;--accent:#6366f1;--accent2:#4f46e5;--success:#16a34a;--warning:#d97706;--danger:#dc2626;--r:10px}
+[data-theme="dark"]{--bg:#0f1117;--bg2:#161822;--bg3:#1e2235;--border:#2a2e42;--text:#e8eaed;--text2:#9ca3af;--text3:#6b7280;--accent:#6366f1;--accent2:#818cf8;--success:#22c55e;--warning:#f59e0b;--danger:#ef4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;overflow-x:hidden}
+.h5-header{position:sticky;top:0;z-index:10;background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+.h5-header h1{font-size:1.1rem}
+.h5-header .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#a78bfa);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:white}
+.h5-page{display:none;padding:16px;padding-bottom:80px;animation:fadeUp .3s ease}
+.h5-page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Tab Bar */
+.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--bg2);border-top:1px solid var(--border);display:flex;padding:8px 0 env(safe-area-inset-bottom,8px);z-index:10}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;color:var(--text3);font-size:.65rem;cursor:pointer;transition:.2s}
+.tab-item.active{color:var(--accent2)}
+.tab-item svg{width:22px;height:22px}
+
+/* Cards */
+.m-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.m-card h3{font-size:.9rem;margin-bottom:12px}
+.m-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.m-stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center}
+.m-stat .val{font-size:1.5rem;font-weight:800;margin:4px 0}
+.m-stat .lab{font-size:.72rem;color:var(--text2)}
+.m-stat.accent .val{color:var(--accent2)}
+.m-stat.success .val{color:var(--success)}
+
+/* Order list */
+.order-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.order-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.order-card .oid{font-size:.82rem;color:var(--accent2);font-weight:600}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:.68rem;font-weight:600}
+.badge.s{background:rgba(34,197,94,.12);color:var(--success)}
+.badge.w{background:rgba(245,158,11,.12);color:var(--warning)}
+.badge.p{background:rgba(99,102,241,.12);color:var(--accent2)}
+.order-card .info{font-size:.78rem;color:var(--text2);line-height:1.8}
+.order-card .info b{color:var(--text);font-weight:500}
+
+/* Create form */
+.m-label{font-size:.78rem;color:var(--text2);margin-bottom:6px;display:block}
+.m-input{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;margin-bottom:14px}
+.m-input:focus{border-color:var(--accent);outline:none}
+.m-btn{width:100%;padding:12px;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;margin-bottom:10px}
+.m-btn.primary{background:var(--accent);color:white}
+.m-btn.ghost{background:var(--bg);border:1px solid var(--border);color:var(--text2)}
+.m-btn:active{opacity:.8}
+
+/* Item select */
+.sku-item{display:flex;align-items:center;justify-content:space-between;padding:12px;border-bottom:1px solid var(--border)}
+.sku-item .left .name{font-size:.85rem;font-weight:500}
+.sku-item .left .code{font-size:.72rem;color:var(--text3)}
+.sku-item .right{display:flex;align-items:center;gap:10px}
+.qty-ctrl{display:flex;align-items:center;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.qty-ctrl button{width:30px;height:30px;background:var(--bg);color:var(--text);border:none;font-size:1rem;cursor:pointer}
+.qty-ctrl input{width:40px;height:30px;text-align:center;background:var(--bg2);border:none;border-left:1px solid var(--border);border-right:1px solid var(--border);color:var(--text);font-size:.82rem}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3);font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="h5-header">
+  <h1>📦 一鸣订单中台</h1>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button onclick="toggleH5Theme()" style="background:none;border:none;padding:6px;color:var(--text2);cursor:pointer" title="切换主题">
+      <svg id="h5-theme-icon" viewBox="0 0 20 20" fill="currentColor" style="width:20px;height:20px"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+    </button>
+    <div class="avatar">陈</div>
+  </div>
+</div>
+
+<!-- Home -->
+<div class="h5-page active" id="h5-home">
+  <div class="m-stats">
+    <div class="m-stat accent"><div class="lab">今日订单</div><div class="val">47</div></div>
+    <div class="m-stat success"><div class="lab">已完成</div><div class="val">38</div></div>
+  </div>
+  <div class="m-card"><h3>📋 快捷操作</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="m-btn primary" onclick="switchTab('create')">➕ 新建订单</button>
+      <button class="m-btn ghost" onclick="switchTab('orders')">📄 我的订单</button>
+      <button class="m-btn ghost" onclick="switchTab('orders')">🔄 调货申请</button>
+      <button class="m-btn ghost" onclick="switchTab('report')">📊 订单报表</button>
+    </div>
+  </div>
+  <div class="m-card"><h3>🔔 最新通知</h3>
+    <div style="font-size:.82rem;line-height:2;color:var(--text2)">
+      <div>• 订单 20260317100001 审核通过 <span style="color:var(--text3);font-size:.7rem">10分钟前</span></div>
+      <div>• 杭州区域截止时间提醒：15:00 <span style="color:var(--text3);font-size:.7rem">30分钟前</span></div>
+      <div>• 物料 400293 库存不足预警 <span style="color:var(--text3);font-size:.7rem">1小时前</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Orders -->
+<div class="h5-page" id="h5-orders">
+  <div style="margin-bottom:12px"><input class="m-input" placeholder="🔍 搜索订单号、客户..." style="margin-bottom:0"></div>
+  <div class="order-card"><div class="top"><span class="oid">20260317100001</span><span class="badge w">未审核</span></div><div class="info">客户：<b>染墨青茶肆萧山奥体印象城店</b><br>类型：拉式订单 | 金额：<b>¥12,580.00</b><br>交货日期：2026-03-19</div></div>
+  <div class="order-card"><div class="top"><span class="oid">20260317100002</span><span class="badge w">未审核</span></div><div class="info">客户：<b>染墨青茶肆国大店</b><br>类型：拉式订单 | 金额：<b>¥8,340.00</b><br>交货日期：2026-03-19</div></div>
+  <div class="order-card"><div class="top"><span class="oid">20260317100003</span><span class="badge s">已审核</span></div><div class="info">客户：<b>瑞安市婷轩副食品经营部</b><br>类型：销售订单 | 金额：<b>¥23,100.00</b><br>交货日期：2026-03-19</div></div>
+  <div class="order-card"><div class="top"><span class="oid">20260316094500</span><span class="badge p">处理中</span></div><div class="info">客户：<b>一鸣真鲜奶吧城西店</b><br>类型：紧急加单 | 金额：<b>¥5,620.00</b><br>交货日期：2026-03-18</div></div>
+</div>
+
+<!-- Create -->
+<div class="h5-page" id="h5-create">
+  <div class="m-card">
+    <h3>📝 第一步：选择客户</h3>
+    <label class="m-label">订单类型 *</label>
+    <select class="m-input"><option>ZR01 - 拉式订单</option><option>ZN20 - 销售订单</option><option>ZW11 - 紧急加单</option></select>
+    <label class="m-label">交货日期 *</label>
+    <input class="m-input" type="date" value="2026-03-19">
+    <label class="m-label">选择客户 *</label>
+    <select class="m-input"><option>N1001 - 染墨青茶肆萧山奥体印象城店</option><option>N1002 - 染墨青茶肆国大店</option><option>20694 - 瑞安市婷轩副食品经营部</option></select>
+  </div>
+  <div class="m-card">
+    <h3>📦 第二步：选择物料</h3>
+    <input class="m-input" placeholder="🔍 搜索物料编码或名称..." style="margin-bottom:6px">
+    <div class="sku-item"><div class="left"><div class="name">DIY酸奶</div><div class="code">400293 · ¥40.00/瓶 · 截止T+2 15:00</div></div><div class="right"><div class="qty-ctrl"><button>−</button><input value="200"><button>+</button></div></div></div>
+    <div class="sku-item"><div class="left"><div class="name">巧克力富力亚</div><div class="code">400330 · ¥12.50/个 · 截止T+1 12:00</div></div><div class="right"><div class="qty-ctrl"><button>−</button><input value="100"><button>+</button></div></div></div>
+    <div class="sku-item"><div class="left"><div class="name">一鸣热奶饮料210ML</div><div class="code">400267 · ¥8.00/瓶 · 截止T+2 15:00</div></div><div class="right"><div class="qty-ctrl"><button>−</button><input value="50"><button>+</button></div></div></div>
+  </div>
+  <div class="m-card">
+    <h3>📋 第三步：确认提交</h3>
+    <div style="font-size:.82rem;color:var(--text2);line-height:2;margin-bottom:12px">
+      <div>客户：<b style="color:var(--text)">N1001 染墨青茶肆萧山奥体印象城店</b></div>
+      <div>类型：<b style="color:var(--text)">ZR01 拉式订单</b></div>
+      <div>物料数：<b style="color:var(--text)">3种 · 350件</b></div>
+      <div>金额合计：<b style="color:var(--accent2);font-size:.95rem">¥9,650.00</b></div>
+    </div>
+    <label class="m-label">备注</label>
+    <input class="m-input" placeholder="选填备注信息">
+    <button class="m-btn primary" onclick="alert('✅ 订单提交成功！\n订单号: 20260317153944')">提交订单</button>
+  </div>
+</div>
+
+<!-- Report -->
+<div class="h5-page" id="h5-report">
+  <div class="m-stats">
+    <div class="m-stat accent"><div class="lab">今日金额</div><div class="val">¥48K</div></div>
+    <div class="m-stat success"><div class="lab">今日数量</div><div class="val">1,280</div></div>
+  </div>
+  <div class="m-card"><h3>📊 物料订单排行</h3>
+    <div style="font-size:.82rem">
+      ${[{n:'DIY酸奶',c:'400293',v:'¥8,000',p:90},{n:'一鸣热奶饮料210ML',c:'400267',v:'¥5,600',p:65},{n:'醇奶家纯牛奶200ml',c:'411237',v:'¥4,200',p:50},{n:'巧克力富力亚',c:'400330',v:'¥3,125',p:38},{n:'经典肉松面包',c:'400104',v:'¥2,800',p:32}].map((m,i)=>`
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="color:var(--text2)">${i+1}. ${m.n}</span><span style="color:var(--text);font-weight:600">${m.v}</span>
+        </div>
+        <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${m.p}%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width 1s ease"></div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>
+
+<!-- Profile -->
+<div class="h5-page" id="h5-profile">
+  <div style="text-align:center;padding:24px 0">
+    <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#a78bfa);display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;color:white;margin-bottom:10px">陈</div>
+    <h2 style="font-size:1.1rem">陈文静</h2>
+    <p style="font-size:.78rem;color:var(--text3)">订单中心专员 · chenwj</p>
+  </div>
+  <div class="m-card" style="padding:0">
+    ${['个人信息','修改密码','临时送货地址变更','消息通知设置','关于系统'].map(t=>`<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:.85rem"><span>${t}</span><span style="color:var(--text3)">›</span></div>`).join('')}
+  </div>
+  <button class="m-btn ghost" style="margin-top:16px;color:var(--danger)" onclick="alert('已退出登录')">退出登录</button>
+</div>
+
+<!-- Tab Bar -->
+<div class="tab-bar">
+  <div class="tab-item active" onclick="switchTab('home')">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+    <span>首页</span>
+  </div>
+  <div class="tab-item" onclick="switchTab('orders')">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+    <span>订单</span>
+  </div>
+  <div class="tab-item" onclick="switchTab('create')" style="position:relative">
+    <div style="width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;margin-top:-22px;box-shadow:0 4px 15px rgba(99,102,241,.4)">
+      <svg viewBox="0 0 20 20" fill="white" style="width:22px;height:22px"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+    </div>
+    <span>下单</span>
+  </div>
+  <div class="tab-item" onclick="switchTab('report')">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 2a1 1 0 10-2 0v2a1 1 0 102 0V9zM8 11a1 1 0 10-2 0v0a1 1 0 102 0z" clip-rule="evenodd"/></svg>
+    <span>报表</span>
+  </div>
+  <div class="tab-item" onclick="switchTab('profile')">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+    <span>我的</span>
+  </div>
+</div>
+
+<script>
+function switchTab(id){
+  document.querySelectorAll('.h5-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('h5-'+id).classList.add('active');
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  const tabs=['home','orders','create','report','profile'];
+  const idx=tabs.indexOf(id);
+  if(idx>=0) document.querySelectorAll('.tab-item')[idx].classList.add('active');
+}
+function toggleH5Theme(){
+  const html=document.documentElement;
+  const isDark=html.getAttribute('data-theme')==='dark';
+  const icon=document.getElementById('h5-theme-icon');
+  if(isDark){
+    html.removeAttribute('data-theme');
+    localStorage.setItem('oms-theme','light');
+    icon.innerHTML='<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>';
+  } else {
+    html.setAttribute('data-theme','dark');
+    localStorage.setItem('oms-theme','dark');
+    icon.innerHTML='<path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>';
+  }
+}
+(function(){
+  const saved=localStorage.getItem('oms-theme');
+  if(saved==='dark'){
+    document.documentElement.setAttribute('data-theme','dark');
+    const icon=document.getElementById('h5-theme-icon');
+    if(icon) icon.innerHTML='<path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>';
+  }
+})();
+</script>
+</body>
+</html>
