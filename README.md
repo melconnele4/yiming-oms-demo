@@ -4,7 +4,7 @@
 
 ## 🌐 在线演示
 
-**🔗 公网访问地址：[https://ulibits619.github.io/yiming-oms-demo/](https://ulibits619.github.io/yiming-oms-demo/)**
+**🔗 公网访问地址：[https://melconnele4.github.io/yiming-oms-demo/](https://melconnele4.github.io/yiming-oms-demo/)**
 
 - 默认账号：`admin` / 密码：`123456`（Demo 模式，直接登录即可）
 
